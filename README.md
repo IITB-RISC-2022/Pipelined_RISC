@@ -1,4 +1,4 @@
-# Multicycle IITB RISC
+# Pipelined IITB RISC
 
 ## Contributors
 
