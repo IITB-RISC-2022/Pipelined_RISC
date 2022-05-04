@@ -35,9 +35,9 @@ entity REG_FILE is
 			  RF_D3 : in std_logic_vector(15 downto 0);
 			  RF_D1 : out std_logic_vector(15 downto 0);
 			  RF_D2 : out std_logic_vector(15 downto 0);
-			  PC_D : in std_logic_vector(15 downto 0); 
-			  PC_EN : in std_logic;
-			  PC_Q : out std_logic_vector(15 downto 0)
+			  R7_D : in std_logic_vector(15 downto 0); 
+			  R7_EN : in std_logic;
+			  R7_Q : out std_logic_vector(15 downto 0)
 		);
 end REG_FILE;
 
@@ -50,7 +50,7 @@ architecture Behav of REG_FILE is
 				en: out std_logic_vector(7 downto 0));
 	end component;
 begin
-	process(wr_en, rf_a1, rf_a2, rf_a3, rf_d3, pc_d, pc_en, clk, rst)
+	process(wr_en, rf_a1, rf_a2, rf_a3, rf_d3, R7_D, R7_en, clk, rst)
 	begin
 		if rst='1' then
 			reg_file_q <= (others => (others => '0'));
@@ -61,9 +61,9 @@ begin
 		rf_d1 <= reg_file_q(to_integer(unsigned(rf_a1)));
 		rf_d2 <= reg_file_q(to_integer(unsigned(rf_a2)));
 		
-		if falling_edge(clk) and pc_en = '1' then
-				reg_file_q(7) <= PC_D;
+		if falling_edge(clk) and R7_en = '1' then
+				reg_file_q(7) <= R7_D;
 		end if;
-		pc_q <= reg_file_q(7);
+		R7_q <= reg_file_q(7);
 	end process;
 end architecture;
