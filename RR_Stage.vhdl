@@ -9,7 +9,7 @@ ENTITY RR_Stage IS
 	    SEPC_ID, SE_ID : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
 		A1_ID, A2_ID, A3_ID, ALU_CS_ID, RF_D3MUX_ID : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
 		ALU_FM_ID, CWB_ID : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
-		RF_WREN_ID, SEPC_CS_ID, ALUY_B_CS_ID : IN STD_LOGIC
+		RF_WREN_ID, SEPC_CS_ID, ALUY_B_CS_ID, MEM_WREN_ID : IN STD_LOGIC
 
 		RF_WREN: IN STD_LOGIC;
 		RF_A3: IN std_logic_vector(2 downto 0);
@@ -18,7 +18,7 @@ ENTITY RR_Stage IS
 		LSPC_RR, SE_RR, D1_RR, D2_RR: out std_logic_vector(15 downto 0);
 		A3_RR, ALU_CS_RR, RF_D3MUX_RR: out std_logic_vector(2 downto 0);
 		ALU_FM_RR, CWB_RR: out std_logic_vector(1 downto 0);
-		RF_WREN_RR, ALUY_B_CS_RR: out std_logic
+		RF_WREN_RR, ALUY_B_CS_RR, MEM_WREN_RR: out std_logic
 	);
 END RR_Stage;
 
@@ -46,6 +46,7 @@ BEGIN
 	ALU_FM_RR <= ALU_FM_ID;
 	CWB_RR <= CWB_ID;
 	RF_WREN_RR <= RF_WREN_ID;
+  MEM_WREN_RR <= MEM_WREN_ID;
 	ALUY_B_CS_RR <= ALUY_B_CS_ID;
 
 	-- LSPC_RR <= 

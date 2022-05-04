@@ -8,7 +8,7 @@ entity MM_Stage is
         ALU_C_EX, D1_EX, D2_EX, LSPC_EX, SE_EX : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
         RF_WREN_EX : IN STD_LOGIC;
         A3_EX, RF_D3MUX_EX : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-        F_EX, OF_EX : IN STD_LOGIC_VECTOR(1 DOWNTO 0)
+        F_EX, OF_EX, MEM_WREN_EX: IN STD_LOGIC_VECTOR(1 DOWNTO 0)
 
         LSPC_MM, SE_MM, ALU_C_MM, MEM_O_MM, D1_MM: OUT STD_LOGIC_VECTOR(15 downto 0);
         A3_MM, RF_D3MUX_MM: OUT STD_LOGIC_VECTOR(2 downto 0);
@@ -49,19 +49,6 @@ begin
     
 	data_mem: MEMORY port map(
         DATA => D2_EX, OUTP => mem_out, ADDR => ALU_C_EX, CLK => CLK,
-        WR_Enable => RF_WREN, RW_Enable => '1'
+        WR_Enable => MEM_WREN_EX, RW_Enable => not MEM_WREN_EX
     );
-	-- -- Hazard MM block
-	-- hazard_MM_instance : hazard_MM
-	-- 	port map(
-	-- 		EX_MM_AR3 => AR3_MM, EX_MM_valid => CL_MM(6 downto 4), EX_MM_mux_control => CL_MM(3 downto 1),
-	-- 		EX_MM_flags => flags_MM, m_out => mem_out, MM_flags_out => flags_MM_hazard, top_MM_mux => top_mux_MM_control,
-	-- 		clear => hazard_MM_clear);
-	
-	-- -- Memory forwarding block
-	-- memory_forwarding_instance : mm_forwarding
-	-- 	port map(
-	-- 		EX_MM_AR2 => AR2_MM, MM_WB_AR3 => AR3_WB, op_MM_WB => OP_WB, op_EX_MM => OP_MM,
-	-- 		EX_MM_AR2_valid => CL_MM(5), MM_WB_AR3_valid => CL_WB(4), mem_forward_mux => forward_mux_control_MM,
-	-- 		clk => clk);
 end architecture;
