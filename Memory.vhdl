@@ -49,3 +49,33 @@ begin
 	outp <= out_t;
 	end process;
 end architecture;
+
+
+entity IM is
+	port(
+		CLK: in std_logic;
+		ADDR: in std_logic_vector(15 downto 0);
+		OUTP: out std_logic_vector(15 downto 0)
+	);
+end IM;
+
+
+architecture behav of IM is
+	type vec_array is array(0 to 2**5 - 1) of std_logic_vector(15 downto 0);
+	signal RAM: vec_array:= (
+		0 => "0111000000001010",
+		others=>(others=>'1'));
+begin
+	process(CLK, ADDR)
+	variable out_t : std_logic_vector(15 downto 0) := (others => '1');
+	begin
+		if RW_Enable = '1' then
+			if to_integer(unsigned(ADDR)) < 15 then
+				out_t := RAM(to_integer(unsigned(ADDR)));
+			else
+				out_t := (others => '0');
+			end if;
+		end if;
+		outp <= out_t;
+	end process;
+end architecture;
