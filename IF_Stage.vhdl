@@ -4,11 +4,10 @@ use ieee.numeric_std.all;
 
 entity IF_Stage is
     port(
-        clk, rst, clr: in std_logic;
-        pc_wren: in std_logic;
-        pc_in: in std_logic_vector(15 downto 0);
-        pc_so: out std_logic_vector(15 downto 0);
-        if_out: out std_logic_vector(31 downto 0)
+        CLK, RST: in std_logic;
+        PC_WREN: in std_logic;
+        PC_IN: in std_logic_vector(15 downto 0);
+        PC_IF, OP_IF, PC_NEXT: out std_logic_vector(15 downto 0)
     );
 end entity;
 
@@ -31,19 +30,12 @@ architecture behav of IF_Stage is
     end component;
     signal pc_out, mem_out: std_logic_vector(15 downto 0);
 begin
-    PC: FF16 port map(d => pc_in, en => pc_wren, rst => rst, clk => clk, q => pc_out);
+    PC: FF16 port map(d => pc_in, en => pc_wren, rst => rst, clk => clk, q => PC_IF);
     IM1: IM port map(clk => clk, addr => pc_out, outp => mem_out);
-    if_out(31 downto 16) <= mem_out;
-
-    main : process(clk, rst, clr)
+    OP_IF <= mem_out;
+    PC_IF <= pc_in;
+    process(pc_in)
     begin
-        if(falling_edge(clk)) then
-            if_out(15 downto 0) <= pc_out;
-        end if;
-
-        if(rst = '1' or clr = '1') then
-            if_out <= (others => '0');    
-        end if;
-    end process; -- main
-
-end architecture ;
+        pc_next <= std_logic_vector(unsigned(pc_in) + 1);
+    end process ; -- architecture ;
+end;

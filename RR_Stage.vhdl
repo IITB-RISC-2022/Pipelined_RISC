@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 entity ID_Stage is
   port (
-    clk, rst, clr: in std_logic;
+    CLK, RST: in std_logic;
     id_in: in std_logic_vector(31 downto 0);
     pc_so: out std_logic_vector(15 downto 0);
     pc_ow: out std_logic;
