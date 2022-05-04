@@ -4,17 +4,21 @@ use ieee.numeric_std.all;
 
 entity WB_State is 
     port(
-        CLK, RST : in std_logic;
-        C_EN, Z_EN, OZ_EN, OC_EN : in std_logic;
+        CLK, RST, CLR : in std_logic;
+        C_EN, Z_EN, TZ_EN : in std_logic;
         AR3_WB: in std_logic_vector(2 downto 0);
         FC_WB: in std_logic_vector(2 downto 0);
         CL_WB: in std_logic_vector(7 downto 0);
         WR_WB: in std_logic_vector(1 downto 0);
+		r7_select : in std_logic_vector(1 downto 0);
+		r7_write : in std_logic;
+		BLUT_WB, OP_WB : in std_logic_vector(3 downto 0);
+        C_in, Z_in, TZ_in: in std_logic;
+		R7_in, LS_PC_WB, SE_WB, ALU_out_WB, mem_out_WB, DO1_WB, PCpp_WB: in std_logic_vector(15 downto 0);   
+        TZ_flag: out std_logic;
         C_flag: out std_logic;
-        OZ_flag: out std_logic;
-        OC_flag: out std_logic;
         Z_flag: out std_logic;
-        D3_data: out std_logic_vector(15 downto 0)    
+        D3_data: out std_logic_vector(15 downto 0) 
     );
 end WB_State;
 
@@ -54,15 +58,10 @@ port (
 	 sel : in std_logic
   );
 end component mux_2x1_16bit;
-
-signal R7_in, LS_PC_WB, SE_WB, ALU_out_WB, mem_out_WB, DO1_WB, PCpp_WB: std_logic_vector(15 downto 0);
-signal clear_control_MM_WB : std_logic;
-signal BLUT_WB, OP_WB : std_logic_vector(3 downto 0);
-
-signal R7_write, top_mux_WB_control, hazard_WB_clear : std_logic;
-signal r7_select : std_logic_vector(1 downto 0);
-signal top_mux_WB_data : std_logic_vector(15 downto 0);
-signal C_in, Z_in: std_logic;
+ 
+--signal clear_control_MM_WB : std_logic;
+--signal R7_write, top_mux_WB_control, hazard_WB_clear : std_logic;
+--signal top_mux_WB_data : std_logic_vector(15 downto 0);
 
 begin
     mux_1: mux_8x1_16bit port map(inp_1 => ALU_out_WB, inp_2 => LS_PC_WB, inp_3 => SE_WB, inp_4 => PCpp_WB, inp_5 => mem_out_WB,
@@ -71,7 +70,7 @@ begin
 	
     mux_2: mux_4x1_16bit port map(inp_1 => DO1_WB, inp_2 => PCpp_WB, inp_3 => LS_PC_WB, inp_4 => LS_PC_WB, sel => r7_select, outp => R7_in);
 	
-	R7_Write <= CL_WB(7) and R7_write_temp;
+	R7_write <= CL_WB(7) and R7_write_temp;
 
 	-- hazard_WB_instance : hazard_conditional_WB port map(
     --     AR3_MM_WB => AR3_WB, MM_WB_LS_PC => LS_PC_WB, MM_WB_PC_inc => PCpp_WB, MM_WB_valid => CL_WB(6 downto 4),
@@ -99,8 +98,7 @@ begin
 	-- 		clk => clk, clr => reset, ena => FC_WB(0),
 	-- 		Din => flags_WB(0 downto 0), Dout => flags_user(0 downto 0));
             
-    flag_C: FF1 port map(D => C_in, EN=>C_EN, RST=>RST, CLK=>CLK, Q=>C_flag);
-	flag_Z: FF1 port map(D => Z_in, EN=>Z_EN, RST=>RST, CLK=>CLK, Q=>Z_flag);
-	flag_OZ: FF1 port map(D => Z_in, EN=>TZ_EN, RST=>RST, CLK=>CLK, Q=>OZ_flag);
-    flag_OC: FF1 port map(D => C_in, EN=>TC_EN, RST=>RST, CLK=>CLK, Q=>OC_flag);
+    flag_C: FF1 port map(D => C_in, EN => C_EN, RST => RST, CLK => CLK, Q => C_flag);
+	flag_Z: FF1 port map(D => Z_in, EN => Z_EN, RST => RST, CLK => CLK, Q => Z_flag);
+    flag_TZ: FF1 port map(D => TZ_in, EN => TZ_EN, RST => RST, CLK => CLK, Q => TZ_flag);
 end architecture;
