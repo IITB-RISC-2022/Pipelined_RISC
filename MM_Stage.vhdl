@@ -2,17 +2,22 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity MM_State is 
+entity MM_Stage is 
     port(
         CLK, RST, CLR : in std_logic;
-        DO1_MM : in std_logic_vector(15 downto 0);
-        DO2_MM : in std_logic_vector(15 downto 0);
-        ALU_out_MM: in std_logic_vector(15 downto 0);
-        WR_MM: in std_logic_vector(1 downto 0)
-    );
-end MM_State;
+        ALU_C_EX, D1_EX, D2_EX, LSPC_EX, SE_EX : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+        RF_WREN_EX : IN STD_LOGIC;
+        A3_EX, RF_D3MUX_EX : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+        F_EX, OF_EX : IN STD_LOGIC_VECTOR(1 DOWNTO 0)
 
-architecture pipeline of MM_State is
+        LSPC_MM, SE_MM, ALU_C_MM, MEM_O_MM, D1_MM: OUT STD_LOGIC_VECTOR(15 downto 0);
+        A3_MM, RF_D3MUX_MM: OUT STD_LOGIC_VECTOR(2 downto 0);
+        OF_MM, F_MM: OUT STD_LOGIC_VECTOR(1 downto 0);
+        RF_WREN_MM: OUT STD_LOGIC;
+    );
+end MM_Stage;
+
+architecture pipeline of MM_Stage is
     component mux_2x1_16bit is
     port (
         inp_1 : in std_logic_vector (15 downto 0);
@@ -30,17 +35,21 @@ architecture pipeline of MM_State is
         OUTP: out std_logic_vector(15 downto 0)
 	);
     end component MEMORY;
-    signal mem_address: std_logic_vector(15 downto 0);
-    signal mem_data: std_logic_vector(15 downto 0);
 
 begin
-    mux_1: mux_2x1_16bit port map(inp_1 => ALU_out_MM, inp_2 => DO1_MM, sel => CL_MM(7), outp => mem_address);
-	mux_2: mux_2x1_16bit port map(inp_1 => DO2_MM, inp_2 => mem_out_WB, sel => forward_mux_control_MM, outp => mem_data);
-	--mux_3: mux_2x1_16bit port map(inp_1 => top_mux_EX, inp_2 => mem_out, sel => top_mux_MM_control);
+    RF_WREN_MM <= RF_WREN_EX;
+    F_MM <= F_EX; 
+    OF_MM <= OF_EX; 
+    RF_D3MUX_MM <= RF_D3MUX_EX;
+    A3_MM <= A3_EX;
+    D1_MM <= D1_EX;
+    ALU_C_MM <= ALU_C_EX;
+    SE_MM <= SE_EX;
+    LSPC_MM <= LSPC_EX;
     
 	data_mem: MEMORY port map(
-        DATA => mem_data, OUTP => mem_out, ADDR => mem_address, CLK => CLK,
-        WR_Enable => WR_MM(0), RW_Enable => '1'
+        DATA => D2_EX, OUTP => mem_out, ADDR => ALU_C_EX, CLK => CLK,
+        WR_Enable => RF_WREN, RW_Enable => '1'
     );
 	-- -- Hazard MM block
 	-- hazard_MM_instance : hazard_MM

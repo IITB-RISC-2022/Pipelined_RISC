@@ -4,8 +4,8 @@ use ieee.numeric_std.all;
 
 entity WB_State is 
     port(
-        CLK, RST, CLR : in std_logic;
-        C_EN, Z_EN, TZ_EN : in std_logic;
+        CLK, RST: in std_logic;
+        C_EN, Z_EN: in std_logic;
         AR3_WB: in std_logic_vector(2 downto 0);
         FC_WB: in std_logic_vector(2 downto 0);
         CL_WB: in std_logic_vector(7 downto 0);
@@ -15,6 +15,7 @@ entity WB_State is
 		BLUT_WB, OP_WB : in std_logic_vector(3 downto 0);
         C_in, Z_in, TZ_in: in std_logic;
 		R7_in, LS_PC_WB, SE_WB, ALU_out_WB, mem_out_WB, DO1_WB, PCpp_WB: in std_logic_vector(15 downto 0);   
+
         TZ_flag: out std_logic;
         C_flag: out std_logic;
         Z_flag: out std_logic;
