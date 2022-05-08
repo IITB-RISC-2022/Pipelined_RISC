@@ -43,9 +43,9 @@ architecture behav of pipe_datapath is
 		RF_WREN: IN STD_LOGIC;
 		RF_A3: IN std_logic_vector(2 downto 0);
 		RF_D3: IN std_logic_vector(15 downto 0);
-		
+
 		LSPC_RR, SE_RR, D1_RR, D2_RR: out std_logic_vector(15 downto 0);
-		A3_RR, ALU_CS_RR, RF_D3MUX_RR: out std_logic_vector(2 downto 0);
+		A3_RR, ALU_CS_RR, RF_D3MUX_RR, A1_RR, A2_RR: out std_logic_vector(2 downto 0);
 		ALU_FM_RR, CWB_RR: out std_logic_vector(1 downto 0);
 		RF_WREN_RR, ALUY_B_CS_RR, MEM_WREN_RR: out std_logic
 	);
@@ -58,6 +58,10 @@ architecture behav of pipe_datapath is
         A3_RR, ALU_CS_RR, RF_D3MUX_RR : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
         ALU_FM_RR, CWB_RR : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
         RF_WREN_RR, ALUY_B_CS_RR, MEM_WREN_RR : IN STD_LOGIC;
+
+        -- forwarding inputs
+        aluy_out_fwd: in std_logic_vector(15 downto 0);
+        d1_fmux, d2_fmux: in std_logic;
 
         ALU_C_EX, D1_EX, D2_EX, LSPC_EX, SE_EX : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
         RF_WREN_EX,  MEM_WREN_EX: OUT STD_LOGIC;
@@ -105,15 +109,23 @@ architecture behav of pipe_datapath is
               Q: out std_logic_vector(N-1 downto 0));
     end component;
 
+    component rf_fwdr is
+        port (
+          a3_exmm, a1_rrex, a2_rrex: in std_logic_vector(2 downto 0);
+          d1_fmux, d2_fmux: out std_logic
+        );
+    end component;
+
     signal PC_NEXT_SIG, PC_IF_SIG, OP_IF_SIG: std_logic_vector(15 downto 0);
     signal IFID_D, IFID_Q: std_logic_vector(31 downto 0);
     signal IDRR_D, IDRR_Q: std_logic_vector(54 downto 0);
-    signal RREX_D, RREX_Q: std_logic_vector(79 downto 0);
+    signal RREX_D, RREX_Q: std_logic_vector(85 downto 0);
     signal EXMM_D, EXMM_Q: std_logic_vector(92 downto 0); -- length should be reduced by 1, rightmost bit is not used
     signal MMWB_D, MMWB_Q: std_logic_vector(90 downto 0);
     signal rf_d3_sig: std_logic_vector(15 downto 0);
     signal rf_a3_sig: std_logic_vector(2 downto 0);
     signal rf_wren_sig: std_logic;
+    signal d1_fmux_sig, d2_fmux_sig: std_logic;
     
     begin
 
@@ -134,9 +146,9 @@ architecture behav of pipe_datapath is
                   CLK => CLK,
                   Q => IDRR_Q
                 );
-    
+   
     rrex_reg: FFX
-            generic map(N => 80)
+            generic map(N => 86)
             port map(D => RREX_D,
                   EN => '1',
                   RST => RST, 
@@ -159,6 +171,12 @@ architecture behav of pipe_datapath is
                         CLK => CLK,
                         Q => MMWB_Q
                     );
+
+    rf_fwdr1: rf_fwdr port map (
+        a3_exmm => EXMM_Q(11 downto 9), a1_rrex => RREX_Q(82 downto 80), a2_rrex => RREX_Q(85 downto 83),
+        d1_fmux => d1_fmux_sig, d2_fmux => d2_fmux_sig 
+    );
+            
     -- ifstage: IF_Stage port map(CLK => CLK, RST => RST, PC_WREN => '1', PC_IN => PC_NEXT_SIG, PC_IF => IFID_D(31 downto 16), OP_IF => IFID_D(15 downto 0), PC_NEXT => PC_NEXT_SIG);
     ifstage: IF_Stage port map(CLK => CLK, RST => RST, PC_WREN => '1', PC_IN => PC_NEXT_SIG, PC_IF => IFID_D(31 downto 16), OP_IF => IFID_D(15 downto 0), PC_NEXT => PC_NEXT_SIG);
     idstage: ID_Stage port map(
@@ -186,15 +204,20 @@ architecture behav of pipe_datapath is
                 
                 LSPC_RR => RREX_D(79 downto 64), SE_RR => RREX_D(63 downto 48), D1_RR => RREX_D(47 downto 32), D2_RR => RREX_D(31 downto 16),
                 A3_RR => RREX_D(15 downto 13), ALU_CS_RR => RREX_D(12 downto 10), RF_D3MUX_RR => RREX_D(9 downto 7),
+                A1_RR => RREX_D(82 downto 80), A2_RR => RREX_D(85 downto 83),
                 ALU_FM_RR => RREX_D(6 downto 5), CWB_RR => RREX_D(4 downto 3),
                 RF_WREN_RR => RREX_D(2), ALUY_B_CS_RR => RREX_D(1), MEM_WREN_RR => RREX_D(0)
             );
     exstage: EX_Stage port map(
                 CLK => CLK, RST => RST,
                 LSPC_RR => RREX_Q(79 downto 64), SE_RR => RREX_Q(63 downto 48), D1_RR => RREX_Q(47 downto 32), D2_RR => RREX_Q(31 downto 16),
-                A3_RR => RREX_Q(15 downto 13), ALU_CS_RR => RREX_Q(12 downto 10), RF_D3MUX_RR => RREX_Q(9 downto 7),
+                A3_RR => RREX_Q(15 downto 13), ALU_CS_RR => RREX_Q(12 downto 10), RF_D3MUX_RR => RREX_Q(9 downto 7), 
                 ALU_FM_RR => RREX_Q(6 downto 5), CWB_RR => RREX_Q(4 downto 3),
                 RF_WREN_RR => RREX_Q(2), ALUY_B_CS_RR => RREX_Q(1), MEM_WREN_RR => RREX_Q(0),
+
+                -- forwarding inputs
+                aluy_out_fwd => EXMM_Q(92 downto 77),
+                d1_fmux => d1_fmux_sig, d2_fmux => d2_fmux_sig,
             
                 ALU_C_EX => EXMM_D(92 downto 77), D1_EX => EXMM_D(76 downto 61), D2_EX => EXMM_D(60 downto 45), LSPC_EX => EXMM_D(44 downto 29), SE_EX => EXMM_D(28 downto 13),
                 RF_WREN_EX => EXMM_D(12), 

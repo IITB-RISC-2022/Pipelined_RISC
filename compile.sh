@@ -31,6 +31,9 @@ ghdl -a SignExtenders.vhdl
 ghdl -e SignExt9
 ghdl -e SignExt6
 
+ghdl -a rf_fwdr.vhdl
+# ghdl -e rf_fwdr
+
 ghdl -a *_Stage.vhdl
 ghdl -e if_stage
 ghdl -e id_stage
@@ -38,7 +41,6 @@ ghdl -e rr_stage
 ghdl -e ex_stage
 ghdl -e mm_stage
 ghdl -e wb_stage
-
 
 ghdl -a pipeline_datapath.vhdl
 ghdl -e pipe_datapath

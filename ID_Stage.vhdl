@@ -16,7 +16,12 @@ ENTITY ID_Stage IS
 END ID_Stage;
 
 ARCHITECTURE behav OF ID_Stage IS
-
+  component LShifter7 is
+  port (
+      inp : in std_logic_vector (8 downto 0);
+      outp : out std_logic_vector (15 downto 0)
+    );
+  end component;
 BEGIN
   PROCESS (CLK, RST, PC_IF, OP_IF)
   BEGIN
@@ -27,6 +32,22 @@ BEGIN
         A3_ID <= OP_IF(5 DOWNTO 3);
         ALU_CS_ID <= "000";
         ALU_FM_ID <= "11";
+        CWB_ID <= "00";
+        RF_D3MUX_ID <= "000";
+        RF_WREN_ID <= '1';
+        MEM_WREN_ID <= '0';
+
+        SEPC_ID <= (others => '0');
+        SE_ID <= (others => '0');
+        SEPC_CS_ID <= '0';
+        ALUY_B_CS_ID <= '0';
+
+      WHEN "0000" =>
+        A1_ID <= (others => '0');
+        A2_ID <= (others => '0');
+        A3_ID <= OP_IF(11 DOWNTO 9);
+        ALU_CS_ID <= "000";
+        ALU_FM_ID <= "00";
         CWB_ID <= "00";
         RF_D3MUX_ID <= "000";
         RF_WREN_ID <= '1';

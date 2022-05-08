@@ -16,7 +16,7 @@ ENTITY RR_Stage IS
 		RF_D3: IN std_logic_vector(15 downto 0);
 		
 		LSPC_RR, SE_RR, D1_RR, D2_RR: out std_logic_vector(15 downto 0);
-		A3_RR, ALU_CS_RR, RF_D3MUX_RR: out std_logic_vector(2 downto 0);
+		A3_RR, ALU_CS_RR, RF_D3MUX_RR, A1_RR, A2_RR: out std_logic_vector(2 downto 0);
 		ALU_FM_RR, CWB_RR: out std_logic_vector(1 downto 0);
 		RF_WREN_RR, ALUY_B_CS_RR, MEM_WREN_RR: out std_logic
 	);
@@ -40,13 +40,15 @@ ARCHITECTURE behav OF RR_Stage IS
 	END COMPONENT;
 BEGIN
 	A3_RR <= A3_ID;
+	A2_RR <= A2_ID;
+	A1_RR <= A1_ID;
 	ALU_CS_RR <= ALU_CS_ID;
 	RF_D3MUX_RR <= RF_D3MUX_ID;
 	SE_RR <= SE_ID;
 	ALU_FM_RR <= ALU_FM_ID;
 	CWB_RR <= CWB_ID;
 	RF_WREN_RR <= RF_WREN_ID;
-  MEM_WREN_RR <= MEM_WREN_ID;
+	MEM_WREN_RR <= MEM_WREN_ID;
 	ALUY_B_CS_RR <= ALUY_B_CS_ID;
 
 	LSPC_RR <= (others => '0');
