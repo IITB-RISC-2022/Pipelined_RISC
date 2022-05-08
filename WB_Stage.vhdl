@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity WB_State is 
+entity WB_Stage is 
     port(
         CLK, RST: in std_logic;
 		LSPC_MM, ALU_C_MM, SE_MM, MEM_O_MM, D1_MM: in STD_LOGIC_VECTOR(15 downto 0);
@@ -14,9 +14,9 @@ entity WB_State is
 		rf_a3: out std_logic_vector(2 downto 0);
 		rf_wren: out std_logic
     );
-end WB_State;
+end WB_Stage;
 
-architecture pipeline of WB_State is
+architecture pipeline of WB_Stage is
 
 component mux_8x1_16bit is
 port (
