@@ -60,9 +60,9 @@ architecture behav of pipe_datapath is
         RF_WREN_RR, ALUY_B_CS_RR, MEM_WREN_RR : IN STD_LOGIC;
 
         ALU_C_EX, D1_EX, D2_EX, LSPC_EX, SE_EX : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-        RF_WREN_EX : OUT STD_LOGIC;
+        RF_WREN_EX,  MEM_WREN_EX: OUT STD_LOGIC;
         A3_EX, RF_D3MUX_EX : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
-        F_EX, OF_EX, MEM_WREN_EX: OUT STD_LOGIC_VECTOR(1 DOWNTO 0)
+        F_EX, OF_EX: OUT STD_LOGIC_VECTOR(1 DOWNTO 0)
     );
     end component;
 
@@ -70,9 +70,9 @@ architecture behav of pipe_datapath is
     port(
         CLK, RST: in std_logic;
         ALU_C_EX, D1_EX, D2_EX, LSPC_EX, SE_EX : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-        RF_WREN_EX : IN STD_LOGIC;
+        RF_WREN_EX, MEM_WREN_EX: IN STD_LOGIC;
         A3_EX, RF_D3MUX_EX : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-        F_EX, OF_EX, MEM_WREN_EX: IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+        F_EX, OF_EX: IN STD_LOGIC_VECTOR(1 DOWNTO 0);
 
         LSPC_MM, SE_MM, ALU_C_MM, MEM_O_MM, D1_MM: OUT STD_LOGIC_VECTOR(15 downto 0);
         A3_MM, RF_D3MUX_MM: OUT STD_LOGIC_VECTOR(2 downto 0);
@@ -98,18 +98,18 @@ architecture behav of pipe_datapath is
 
     component FFX is
         generic(N: integer);
-        port(D: in std_logic_vector(N downto 0);
+        port(D: in std_logic_vector(N-1 downto 0);
               EN: in std_logic;
               RST: in std_logic;
               CLK: in std_logic;
-              Q: out std_logic_vector(N downto 0));
+              Q: out std_logic_vector(N-1 downto 0));
     end component;
 
     signal PC_NEXT_SIG, PC_IF_SIG, OP_IF_SIG: std_logic_vector(15 downto 0);
     signal IFID_D, IFID_Q: std_logic_vector(31 downto 0);
     signal IDRR_D, IDRR_Q: std_logic_vector(54 downto 0);
     signal RREX_D, RREX_Q: std_logic_vector(79 downto 0);
-    signal EXMM_D, EXMM_Q: std_logic_vector(92 downto 0);
+    signal EXMM_D, EXMM_Q: std_logic_vector(92 downto 0); -- length should be reduced by 1, rightmost bit is not used
     signal MMWB_D, MMWB_Q: std_logic_vector(90 downto 0);
     signal rf_d3_sig: std_logic_vector(15 downto 0);
     signal rf_a3_sig: std_logic_vector(2 downto 0);
@@ -159,6 +159,7 @@ architecture behav of pipe_datapath is
                         CLK => CLK,
                         Q => MMWB_Q
                     );
+    -- ifstage: IF_Stage port map(CLK => CLK, RST => RST, PC_WREN => '1', PC_IN => PC_NEXT_SIG, PC_IF => IFID_D(31 downto 16), OP_IF => IFID_D(15 downto 0), PC_NEXT => PC_NEXT_SIG);
     ifstage: IF_Stage port map(CLK => CLK, RST => RST, PC_WREN => '1', PC_IN => (others => '0'), PC_IF => IFID_D(31 downto 16), OP_IF => IFID_D(15 downto 0), PC_NEXT => PC_NEXT_SIG);
     idstage: ID_Stage port map(
             CLK => CLK, RST => RST,
@@ -198,14 +199,14 @@ architecture behav of pipe_datapath is
                 ALU_C_EX => EXMM_D(92 downto 77), D1_EX => EXMM_D(76 downto 61), D2_EX => EXMM_D(60 downto 45), LSPC_EX => EXMM_D(44 downto 29), SE_EX => EXMM_D(28 downto 13),
                 RF_WREN_EX => EXMM_D(12), 
                 A3_EX => EXMM_D(11 downto 9), RF_D3MUX_EX  => EXMM_D(8 downto 6), 
-                F_EX  => EXMM_D(5 downto 4), OF_EX => EXMM_D(3 downto 2), MEM_WREN_EX => EXMM_D(1 downto 0)
+                F_EX  => EXMM_D(5 downto 4), OF_EX => EXMM_D(3 downto 2), MEM_WREN_EX => EXMM_D(1)
             );
     mmstage: MM_Stage port map(
             CLK => CLK, RST => RST,
             ALU_C_EX => EXMM_Q(92 downto 77), D1_EX => EXMM_Q(76 downto 61), D2_EX => EXMM_Q(60 downto 45), LSPC_EX => EXMM_Q(44 downto 29), SE_EX => EXMM_Q(28 downto 13),
             RF_WREN_EX => EXMM_Q(12), 
             A3_EX => EXMM_Q(11 downto 9), RF_D3MUX_EX  => EXMM_Q(8 downto 6), 
-            F_EX  => EXMM_Q(5 downto 4), OF_EX => EXMM_Q(3 downto 2), MEM_WREN_EX => EXMM_Q(1 downto 0),
+            F_EX  => EXMM_Q(5 downto 4), OF_EX => EXMM_Q(3 downto 2), MEM_WREN_EX => EXMM_Q(1),
     
             LSPC_MM => MMWB_D(90 downto 75), SE_MM  => MMWB_D(74 downto 59), ALU_C_MM  => MMWB_D(58 downto 43), MEM_O_MM  => MMWB_D(42 downto 27), D1_MM => MMWB_D(26 downto 11),
             A3_MM  => MMWB_D(10 downto 8), RF_D3MUX_MM  => MMWB_D(7 downto 5),

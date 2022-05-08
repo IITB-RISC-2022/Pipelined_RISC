@@ -11,9 +11,9 @@ ENTITY EX_Stage IS
         RF_WREN_RR, ALUY_B_CS_RR, MEM_WREN_RR : IN STD_LOGIC;
 
         ALU_C_EX, D1_EX, D2_EX, LSPC_EX, SE_EX : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-        RF_WREN_EX : OUT STD_LOGIC;
+        RF_WREN_EX, MEM_WREN_EX: OUT STD_LOGIC;
         A3_EX, RF_D3MUX_EX : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
-        F_EX, OF_EX, MEM_WREN_EX: OUT STD_LOGIC_VECTOR(1 DOWNTO 0)
+        F_EX, OF_EX: OUT STD_LOGIC_VECTOR(1 DOWNTO 0)
     );
 END EX_Stage;
 
@@ -94,5 +94,6 @@ BEGIN
             RF_WREN_EX <= oz_out and rf_wren_rr;
             WHEN others =>
             RF_WREN_EX <= RF_WREN_RR;
+        END CASE;
         END PROCESS;
     END ARCHITECTURE;

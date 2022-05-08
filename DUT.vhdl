@@ -10,15 +10,17 @@ entity DUT is
 end entity;
 
 architecture DutWrap of DUT is
-	component IITB_RISC is 
-		port (CLK, RST: in std_logic);
-	end component IITB_RISC;
+	component pipe_datapath is
+		port(
+		CLK, RST: in std_logic
+		);
+	end component;
 	signal zero: std_logic_vector(0 downto 0) := "0";
 begin
 
    -- input/output vector element ordering is critical,
    -- and must match the ordering in the trace file!
-   RISC_instance: IITB_RISC 
+   RISC_instance: pipe_datapath 
 			port map (
 					CLK => input_vector(1),
 					RST => input_vector(0));

@@ -31,6 +31,12 @@ BEGIN
         RF_D3MUX_ID <= "000";
         RF_WREN_ID <= '1';
         MEM_WREN_ID <= '0';
+
+        SEPC_ID <= (others => '0');
+        SE_ID <= (others => '0');
+        SEPC_CS_ID <= '0';
+        ALUY_B_CS_ID <= '0';
+        
       WHEN OTHERS =>
 
     END CASE;

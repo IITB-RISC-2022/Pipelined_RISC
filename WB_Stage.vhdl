@@ -8,7 +8,7 @@ entity WB_Stage is
 		LSPC_MM, ALU_C_MM, SE_MM, MEM_O_MM, D1_MM: in STD_LOGIC_VECTOR(15 downto 0);
         A3_MM, RF_D3MUX_MM: in STD_LOGIC_VECTOR(2 downto 0);
         OF_MM, F_MM: in STD_LOGIC_VECTOR(1 downto 0);
-        RF_WREN_MM: in STD_LOGIC
+        RF_WREN_MM: in STD_LOGIC;
 
 		rf_d3: out std_logic_vector(15 downto 0);
 		rf_a3: out std_logic_vector(2 downto 0);

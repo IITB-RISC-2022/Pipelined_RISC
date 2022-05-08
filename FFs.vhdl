@@ -97,11 +97,11 @@ use ieee.numeric_std.all;
 
 entity FFX is
 	generic(N: integer);
-	port(D: in std_logic_vector(N downto 0);
+	port(D: in std_logic_vector(N-1 downto 0);
 		  EN: in std_logic;
 		  RST: in std_logic;
 		  CLK: in std_logic;
-		  Q: out std_logic_vector(N downto 0));
+		  Q: out std_logic_vector(N-1 downto 0));
 end entity FFX;
 
 architecture Behav of FFX is
