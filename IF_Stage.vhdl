@@ -30,9 +30,10 @@ architecture behav of IF_Stage is
     end component;
     signal pc_out, mem_out: std_logic_vector(15 downto 0);
 begin
-    pc_next <= std_logic_vector(unsigned(pc_in) + 1);
-    PC: FF16 port map(d => PC_IN, en => pc_wren, rst => rst, clk => clk, q => PC_IF);
+    PC: FF16 port map(d => PC_IN, en => pc_wren, rst => rst, clk => clk, q => PC_out);
     IM1: IM port map(clk => clk, addr => pc_out, outp => mem_out);
     OP_IF <= mem_out;
-    PC_IF <= pc_in;
+    pc_next <= std_logic_vector(unsigned(pc_out) + 1);
+    pc_if <= pc_out;
+    -- PC_IF <= pc_in;
 end;
