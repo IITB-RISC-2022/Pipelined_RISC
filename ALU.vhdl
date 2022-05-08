@@ -33,6 +33,8 @@ begin
 			out_c <= '0';
 		elsif (alu_op = "011") then
 			temp_out(15 downto 0) := std_logic_vector(unsigned(inp_a) + unsigned(inp_b)-1);
+		elsif (alu_op = "100") then
+			temp_out(15 downto 0) := inp_b;
 		end if;
 		
 		if temp_out(15 downto 0) = "0000000000000000" then 

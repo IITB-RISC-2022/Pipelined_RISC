@@ -5,7 +5,7 @@ USE ieee.numeric_std.ALL;
 ENTITY EX_Stage IS
     PORT (
         CLK, RST : IN STD_LOGIC;
-        LSPC_RR, SE_RR, D1_RR, D2_RR: IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+        LSPC_RR, SE_RR, D1_RR, D2_RR, LS_RR: IN STD_LOGIC_VECTOR(15 DOWNTO 0);
         A3_RR, ALU_CS_RR, RF_D3MUX_RR : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
         ALU_FM_RR, CWB_RR : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
         RF_WREN_RR, ALUY_B_CS_RR, MEM_WREN_RR : IN STD_LOGIC;
@@ -14,7 +14,7 @@ ENTITY EX_Stage IS
         aluy_out_fwd: in std_logic_vector(15 downto 0);
         d1_fmux, d2_fmux: in std_logic;
 
-        ALU_C_EX, D1_EX, D2_EX, LSPC_EX, SE_EX : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+        ALU_C_EX, D1_EX, D2_EX, LSPC_EX, SE_EX, LS_EX : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
         RF_WREN_EX, MEM_WREN_EX: OUT STD_LOGIC;
         A3_EX, RF_D3MUX_EX : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
         F_EX, OF_EX: OUT STD_LOGIC_VECTOR(1 DOWNTO 0)
@@ -50,10 +50,12 @@ ARCHITECTURE behav OF EX_Stage IS
             Q : OUT STD_LOGIC);
     END COMPONENT;
 
-    SIGNAL aluy_b, d1_rr_sig, d2_rr_sig: STD_LOGIC_VECTOR(15 DOWNTO 0);
+    SIGNAL aluy_b, d1_rr_sig, d2_rr_sig, ALU_C_sig: STD_LOGIC_VECTOR(15 DOWNTO 0);
     SIGNAL oc_out, oz_out, c_in, c_out, z_in, z_out, c_en, z_en : STD_LOGIC;
 BEGIN
-    ALUY : ALU PORT MAP(alu_op => ALU_CS_RR, inp_a => D1_RR_sig, inp_b => ALUY_B, out_c => C_IN, out_z => Z_IN, alu_out => ALU_C_EX);
+    LS_EX <= LS_RR;
+
+    ALUY : ALU PORT MAP(alu_op => ALU_CS_RR, inp_a => D1_RR_sig, inp_b => ALUY_B, out_c => C_IN, out_z => Z_IN, alu_out => ALU_C_sig);
 
     aluy_b_mux : mux_2x1_16bit PORT MAP(inp_1 => D2_RR_sig, inp_2 => SE_RR, outp => ALUY_B, sel => ALUY_B_CS_RR);
 
@@ -77,8 +79,13 @@ BEGIN
     LSPC_EX <= LSPC_RR;
     RF_D3MUX_EX <= RF_D3MUX_RR;
     -- RF_WREN_EX <= RF_WREN_RR;
-    PROCESS (CLK, RST, ALU_FM_RR, cwb_rr, rf_wren_rr, oc_out, oz_out)
+    PROCESS (CLK, RST, ALU_FM_RR, cwb_rr, rf_wren_rr, oc_out, oz_out, ALU_CS_RR, ALU_C_sig, LS_RR)
     BEGIN
+        if(ALU_CS_RR = "100") then
+            ALU_C_EX <= LS_RR;
+        else
+            ALU_C_EX <= ALU_C_sig;
+        end if;
         CASE(ALU_FM_RR) IS
             WHEN "00" =>
             c_en <= '0';

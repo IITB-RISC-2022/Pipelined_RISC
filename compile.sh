@@ -52,3 +52,4 @@ ghdl -a Testbench.vhdl
 ghdl -e Testbench
 
 echo "End"
+ghdl -r testbench --wave=waveform.ghw > .output

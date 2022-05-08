@@ -8,7 +8,7 @@ ENTITY ID_Stage IS
     PC_IF : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
     OP_IF : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
 
-    SEPC_ID, SE_ID : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+    SEPC_ID, SE_ID, LS_ID : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
     A1_ID, A2_ID, A3_ID, ALU_CS_ID, RF_D3MUX_ID : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
     ALU_FM_ID, CWB_ID : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
     RF_WREN_ID, SEPC_CS_ID, ALUY_B_CS_ID, MEM_WREN_ID : OUT STD_LOGIC
@@ -23,6 +23,7 @@ ARCHITECTURE behav OF ID_Stage IS
     );
   end component;
 BEGIN
+  ls7: LShifter7 port map(inp => OP_IF(8 downto 0), outp => LS_ID);
   PROCESS (CLK, RST, PC_IF, OP_IF)
   BEGIN
     CASE(OP_IF (15 DOWNTO 12)) IS
@@ -46,7 +47,7 @@ BEGIN
         A1_ID <= (others => '0');
         A2_ID <= (others => '0');
         A3_ID <= OP_IF(11 DOWNTO 9);
-        ALU_CS_ID <= "000";
+        ALU_CS_ID <= "100";
         ALU_FM_ID <= "00";
         CWB_ID <= "00";
         RF_D3MUX_ID <= "000";
@@ -57,6 +58,22 @@ BEGIN
         SE_ID <= (others => '0');
         SEPC_CS_ID <= '0';
         ALUY_B_CS_ID <= '0';
+      WHEN "0111" =>
+        A1_ID <= (others => '0');
+        A2_ID <= (others => '0');
+        A3_ID <= OP_IF(11 DOWNTO 9);
+        ALU_CS_ID <= "100";
+        ALU_FM_ID <= "00";
+        CWB_ID <= "00";
+        RF_D3MUX_ID <= "000";
+        RF_WREN_ID <= '1';
+        MEM_WREN_ID <= '0';
+
+        SEPC_ID <= (others => '0');
+        SE_ID <= (others => '0');
+        SEPC_CS_ID <= '0';
+        ALUY_B_CS_ID <= '0';
+        
         
       WHEN OTHERS =>
 
