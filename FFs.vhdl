@@ -16,7 +16,7 @@ end entity FF3;
 architecture Behav of FF3 is
 
 begin
-	process(D,En,CLK)
+	process(D,En,CLK,rst)
 	begin
 	if rst = '1' then
 		Q <= (others =>'0');
@@ -47,7 +47,7 @@ end entity FF1;
 architecture Behav of FF1 is
 
 begin
-	process(D,En,CLK)
+	process(D,En,CLK,rst)
 	begin
 		if rst = '1' then
 			Q <= '0';
@@ -78,7 +78,7 @@ end entity FF16;
 architecture Behav of FF16 is
 
 begin
-	process(D,En,CLK)
+	process(D,En,CLK,rst)
 	begin
 		if rst = '1' then
 			Q <= (others =>'0');
@@ -107,7 +107,7 @@ end entity FFX;
 architecture Behav of FFX is
 
 	begin
-		process(D,En,CLK)
+		process(D,En,CLK,rst)
 		begin
 			if rst = '1' then
 				Q <= (others =>'0');

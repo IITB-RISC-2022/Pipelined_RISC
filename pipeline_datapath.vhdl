@@ -160,7 +160,7 @@ architecture behav of pipe_datapath is
                         Q => MMWB_Q
                     );
     -- ifstage: IF_Stage port map(CLK => CLK, RST => RST, PC_WREN => '1', PC_IN => PC_NEXT_SIG, PC_IF => IFID_D(31 downto 16), OP_IF => IFID_D(15 downto 0), PC_NEXT => PC_NEXT_SIG);
-    ifstage: IF_Stage port map(CLK => CLK, RST => RST, PC_WREN => '1', PC_IN => (others => '0'), PC_IF => IFID_D(31 downto 16), OP_IF => IFID_D(15 downto 0), PC_NEXT => PC_NEXT_SIG);
+    ifstage: IF_Stage port map(CLK => CLK, RST => RST, PC_WREN => '1', PC_IN => PC_NEXT_SIG, PC_IF => IFID_D(31 downto 16), OP_IF => IFID_D(15 downto 0), PC_NEXT => PC_NEXT_SIG);
     idstage: ID_Stage port map(
             CLK => CLK, RST => RST,
             PC_IF => IFID_Q(31 downto 16),

@@ -40,7 +40,7 @@ ghdl -e mm_stage
 ghdl -e wb_stage
 
 
-ghdl -a datapath.vhdl
+ghdl -a pipeline_datapath.vhdl
 ghdl -e pipe_datapath
 
 ghdl -a DUT.vhdl

@@ -68,6 +68,7 @@ architecture behav of IM is
 	signal RAM: vec_array:= (
 		-- 0 => "0111000000001010",
 		0 => "0001000001010000",
+		1 => "0001001011011000",
 		others=>(others=>'1'));
 begin
 	process(CLK, ADDR)
