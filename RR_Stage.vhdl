@@ -41,8 +41,10 @@ ARCHITECTURE behav OF RR_Stage IS
 BEGIN
 	A3_RR <= A3_ID;
 	A2_RR <= A2_ID;
-	A1_RR <= A1_ID;
+
 	ALU_CS_RR <= ALU_CS_ID;
+	A1_RR <= A1_ID;
+	
 	RF_D3MUX_RR <= RF_D3MUX_ID;
 	SE_RR <= SE_ID;
 	ALU_FM_RR <= ALU_FM_ID;

@@ -60,8 +60,8 @@ architecture behav of pipe_datapath is
         RF_WREN_RR, ALUY_B_CS_RR, MEM_WREN_RR : IN STD_LOGIC;
 
         -- forwarding inputs
-        aluy_out_fwd: in std_logic_vector(15 downto 0);
-        d1_fmux, d2_fmux: in std_logic;
+        aluy_out_fwd, mem_fwd: in std_logic_vector(15 downto 0);
+        d1_fmux, d2_fmux, d1_mfmux, d2_mfmux: in std_logic;
 
         ALU_C_EX, D1_EX, D2_EX, LSPC_EX, SE_EX, LS_EX: OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
         RF_WREN_EX,  MEM_WREN_EX: OUT STD_LOGIC;
@@ -101,7 +101,7 @@ architecture behav of pipe_datapath is
     end component;
 
     component FFX is
-        generic(N: integer);
+        generic(N: integer; default: std_logic := '0');
         port(D: in std_logic_vector(N-1 downto 0);
               EN: in std_logic;
               RST: in std_logic;
@@ -111,8 +111,17 @@ architecture behav of pipe_datapath is
 
     component rf_fwdr is
         port (
-          a3_exmm, a1_rrex, a2_rrex: in std_logic_vector(2 downto 0);
+          a3_exmm, a1_rrex, a2_rrex, rf_d3mux_mm: in std_logic_vector(2 downto 0);
+          rf_wren_mm: in std_logic;
           d1_fmux, d2_fmux: out std_logic
+        );
+    end component;
+
+    component mm_fwdr is
+        port (
+        a3_rrex, a1_idrr, a2_idrr, rf_d3mux_rrex: in std_logic_vector(2 downto 0);
+        rf_wren_rrex, clk: in std_logic;
+        d1_mfmux, d2_mfmux, ifid_en, idrr_en, pc_en, rrex_clr : out std_logic
         );
     end component;
 
@@ -125,14 +134,14 @@ architecture behav of pipe_datapath is
     signal rf_d3_sig: std_logic_vector(15 downto 0);
     signal rf_a3_sig: std_logic_vector(2 downto 0);
     signal rf_wren_sig: std_logic;
-    signal d1_fmux_sig, d2_fmux_sig: std_logic;
+    signal d1_fmux_sig, d1_mfmux_sig, d2_fmux_sig, d2_mfmux_sig, ifid_en_sig, idrr_en_sig, rrex_clr_sig, pc_en_sig: std_logic;
     
     begin
 
     ifid_reg: FFX
-            generic map(N => 32)
+            generic map(N => 32, default => '1')
             port map(D => IFID_D,
-                  EN => '1',
+                  EN => ifid_en_sig,
                   RST => RST, 
                   CLK => CLK,
                   Q => IFID_Q
@@ -141,7 +150,7 @@ architecture behav of pipe_datapath is
     idrr_reg: FFX
             generic map(N => 71)
             port map(D => IDRR_D,
-                  EN => '1',
+                  EN => idrr_en_sig,
                   RST => RST, 
                   CLK => CLK,
                   Q => IDRR_Q
@@ -151,6 +160,7 @@ architecture behav of pipe_datapath is
             generic map(N => 102)
             port map(D => RREX_D,
                   EN => '1',
+                --   CLR => rrex_clr_sig,
                   RST => RST, 
                   CLK => CLK,
                   Q => RREX_Q
@@ -173,12 +183,16 @@ architecture behav of pipe_datapath is
                     );
 
     rf_fwdr1: rf_fwdr port map (
-        a3_exmm => EXMM_Q(11 downto 9), a1_rrex => RREX_Q(82 downto 80), a2_rrex => RREX_Q(85 downto 83),
+        a3_exmm => EXMM_Q(11 downto 9), a1_rrex => RREX_Q(98 downto 96), a2_rrex => RREX_Q(101 downto 99), rf_wren_mm =>  EXMM_Q(12), rf_d3mux_mm => EXMM_Q(8 downto 6),
         d1_fmux => d1_fmux_sig, d2_fmux => d2_fmux_sig 
     );
+    mm_fwdr1: mm_fwdr port map (
+        a3_rrex =>  RREX_Q(15 downto 13), a1_idrr => IDRR_Q(22 downto 20), a2_idrr => IDRR_Q(19 downto 17), rf_d3mux_rrex => RREX_Q(9 downto 7),
+        rf_wren_rrex => RREX_Q(2), clk => CLK,
+        d1_mfmux => d1_mfmux_sig, d2_mfmux => d2_mfmux_sig, ifid_en => ifid_en_sig, idrr_en => idrr_en_sig, pc_en => pc_en_sig, rrex_clr => rrex_clr_sig
+        );
             
-    -- ifstage: IF_Stage port map(CLK => CLK, RST => RST, PC_WREN => '1', PC_IN => PC_NEXT_SIG, PC_IF => IFID_D(31 downto 16), OP_IF => IFID_D(15 downto 0), PC_NEXT => PC_NEXT_SIG);
-    ifstage: IF_Stage port map(CLK => CLK, RST => RST, PC_WREN => '1', PC_IN => PC_NEXT_SIG, PC_IF => IFID_D(31 downto 16), OP_IF => IFID_D(15 downto 0), PC_NEXT => PC_NEXT_SIG);
+    ifstage: IF_Stage port map(CLK => CLK, RST => RST, PC_WREN => pc_en_sig, PC_IN => PC_NEXT_SIG, PC_IF => IFID_D(31 downto 16), OP_IF => IFID_D(15 downto 0), PC_NEXT => PC_NEXT_SIG);
     idstage: ID_Stage port map(
             CLK => CLK, RST => RST,
             PC_IF => IFID_Q(31 downto 16),
@@ -204,7 +218,7 @@ architecture behav of pipe_datapath is
                 
                 LS_RR => RREX_D(95 downto 80), LSPC_RR => RREX_D(79 downto 64), SE_RR => RREX_D(63 downto 48), D1_RR => RREX_D(47 downto 32), D2_RR => RREX_D(31 downto 16),
                 A3_RR => RREX_D(15 downto 13), ALU_CS_RR => RREX_D(12 downto 10), RF_D3MUX_RR => RREX_D(9 downto 7),
-                A1_RR => RREX_D(82 downto 80), A2_RR => RREX_D(85 downto 83),
+                A1_RR => RREX_D(98 downto 96), A2_RR => RREX_D(101 downto 99),
                 ALU_FM_RR => RREX_D(6 downto 5), CWB_RR => RREX_D(4 downto 3),
                 RF_WREN_RR => RREX_D(2), ALUY_B_CS_RR => RREX_D(1), MEM_WREN_RR => RREX_D(0)
             );
@@ -218,6 +232,8 @@ architecture behav of pipe_datapath is
                 -- forwarding inputs
                 aluy_out_fwd => EXMM_Q(92 downto 77),
                 d1_fmux => d1_fmux_sig, d2_fmux => d2_fmux_sig,
+                mem_fwd => MMWB_Q(42 downto 27), 
+                d1_mfmux => d1_mfmux_sig, d2_mfmux => d2_mfmux_sig,
             
                 LS_EX => EXMM_D(108 downto 93), ALU_C_EX => EXMM_D(92 downto 77), D1_EX => EXMM_D(76 downto 61), D2_EX => EXMM_D(60 downto 45), LSPC_EX => EXMM_D(44 downto 29), SE_EX => EXMM_D(28 downto 13),
                 RF_WREN_EX => EXMM_D(12), 

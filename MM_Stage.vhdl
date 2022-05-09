@@ -35,8 +35,9 @@ architecture pipeline of MM_Stage is
         OUTP: out std_logic_vector(15 downto 0)
 	);
     end component MEMORY;
-
+    signal NMEM_WREN_EX: std_logic;
 begin
+    NMEM_WREN_EX <= not MEM_WREN_EX;
     RF_WREN_MM <= RF_WREN_EX;
     F_MM <= F_EX; 
     OF_MM <= OF_EX; 
@@ -49,6 +50,6 @@ begin
     LS_MM <= LS_EX;
 	data_mem: MEMORY port map(
         DATA => D2_EX, OUTP => MEM_O_MM, ADDR => ALU_C_EX, CLK => CLK,
-        WR_Enable => MEM_WREN_EX, RW_Enable => '1' 
+        WR_Enable => MEM_WREN_EX, RW_Enable => NMEM_WREN_EX 
     );
 end architecture;

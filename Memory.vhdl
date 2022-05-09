@@ -13,18 +13,10 @@ end MEMORY;
 architecture behav of MEMORY is
 	type vec_array is array(0 to 2**5 - 1) of std_logic_vector(15 downto 0);
 	--0111000000000010
-	signal RAM: vec_array:= (	 -- in ra rb rc	
-		0 => "0111000000001010", -- lw r0, r0, 10
-	 	1 => "0111001001001011", -- lw r1, r1, 11
-		2 => "0111010010001100", -- lw r2, r2, 12
-		3 => "0111100100000000", -- lw r4, r4, 00
-		4 => "1011000000000010",
-		5 => "0001000001000000",
-		7 => "0001000000001000",
-		--5 => "0001000010000001", 
-		10 => "0000000000000101", 
-		11 => "0000000000000111",
-		12 => "0000000000000010", 
+	signal RAM: vec_array:= (
+		0 => "0000000000000001",	 
+		1 => "1111111111111110",
+		2 => "0000000000000010",-- in ra rb rc	
 		others=>(others=>'1'));
 	-- signal RAM: vec_array:= (others=>b"0000000000000000");
 
@@ -66,11 +58,16 @@ end IM;
 architecture behav of IM is
 	type vec_array is array(0 to 2**5 - 1) of std_logic_vector(15 downto 0);
 	signal RAM: vec_array:= (
-		-- 0 => "0111000000001010",
-		0 => "0001000001010000", -- r0, r1, r2
-		1 => "0001001011011000", -- r1, r3, r3
-		2 => "0000000000000001", -- r0, 1
-		3 => "0001001011111000", -- r1, r3, r7
+		--0 => "0111000000001010",
+		0 => "0000001000000001", -- lw r1, r0, 0, load mem 0 in r1
+		-- 1 => "0111000001000001", -- lw r0, r0, 1, load mem 1 in r0
+
+		5 => "0111000000000001", -- lw r1, r0, 0, load mem 0 in r1
+		9 => "0001001000000000", -- add r0, r0, r1, add r1 and r0 and store in r0
+	
+		-- 1 => "0001001011011000", -- r1, r3, r3
+		-- 2 => "0000000000000001", -- r0, 1
+		-- 3 => "0001001011111000", -- r1, r3, r7
 		others=>(others=>'1'));
 begin
 	process(CLK, ADDR)
@@ -79,7 +76,7 @@ begin
 		if to_integer(unsigned(ADDR)) < 15 then
 			out_t := RAM(to_integer(unsigned(ADDR)));
 		else
-			out_t := (others => '0');
+			out_t := (others => '1');
 		end if;
 		outp <= out_t;
 	end process;

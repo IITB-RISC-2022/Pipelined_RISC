@@ -96,7 +96,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity FFX is
-	generic(N: integer);
+	generic(N: integer; default: std_logic := '0');
 	port(D: in std_logic_vector(N-1 downto 0);
 		  EN: in std_logic;
 		  RST: in std_logic;
@@ -110,7 +110,7 @@ architecture Behav of FFX is
 		process(D,En,CLK,rst)
 		begin
 			if rst = '1' then
-				Q <= (others =>'0');
+				Q <= (others =>default);
 			elsif CLK'event and (CLK = '0') then
 				if EN = '1' then
 					Q <= D;

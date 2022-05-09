@@ -11,8 +11,8 @@ ENTITY EX_Stage IS
         RF_WREN_RR, ALUY_B_CS_RR, MEM_WREN_RR : IN STD_LOGIC;
 
         -- forwarding inputs
-        aluy_out_fwd: in std_logic_vector(15 downto 0);
-        d1_fmux, d2_fmux: in std_logic;
+        aluy_out_fwd, mem_fwd: in std_logic_vector(15 downto 0);
+        d1_fmux, d2_fmux, d1_mfmux, d2_mfmux: in std_logic;
 
         ALU_C_EX, D1_EX, D2_EX, LSPC_EX, SE_EX, LS_EX : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
         RF_WREN_EX, MEM_WREN_EX: OUT STD_LOGIC;
@@ -50,7 +50,7 @@ ARCHITECTURE behav OF EX_Stage IS
             Q : OUT STD_LOGIC);
     END COMPONENT;
 
-    SIGNAL aluy_b, d1_rr_sig, d2_rr_sig, ALU_C_sig: STD_LOGIC_VECTOR(15 DOWNTO 0);
+    SIGNAL aluy_b, d1_rr_sig, d1_rr_sig2, d2_rr_sig, d2_rr_sig2, ALU_C_sig: STD_LOGIC_VECTOR(15 DOWNTO 0);
     SIGNAL oc_out, oz_out, c_in, c_out, z_in, z_out, c_en, z_en : STD_LOGIC;
 BEGIN
     LS_EX <= LS_RR;
@@ -60,8 +60,11 @@ BEGIN
     aluy_b_mux : mux_2x1_16bit PORT MAP(inp_1 => D2_RR_sig, inp_2 => SE_RR, outp => ALUY_B, sel => ALUY_B_CS_RR);
 
     -- forwarding
-    d1_rr_fmux : mux_2x1_16bit PORT MAP(inp_1 => D1_RR, inp_2 => aluy_out_fwd, outp => d1_rr_sig, sel => d1_fmux);
-    d2_rr_fmux : mux_2x1_16bit PORT MAP(inp_1 => D2_RR, inp_2 => aluy_out_fwd, outp => d2_rr_sig, sel => d2_fmux);
+    d1_rr_fmux : mux_2x1_16bit PORT MAP(inp_1 => D1_RR_sig, inp_2 => aluy_out_fwd, outp => d1_rr_sig2, sel => d1_fmux);
+    d1_rr_mfmux : mux_2x1_16bit PORT MAP(inp_1 => D1_RR, inp_2 => mem_fwd, outp => d1_rr_sig, sel => d1_mfmux);
+
+    d2_rr_fmux : mux_2x1_16bit PORT MAP(inp_1 => D2_RR_sig, inp_2 => aluy_out_fwd, outp => d2_rr_sig2, sel => d2_fmux);
+    d2_rr_mfmux : mux_2x1_16bit PORT MAP(inp_1 => D2_RR, inp_2 => mem_fwd, outp => d2_rr_sig, sel => d2_mfmux);
 
     fc : FF1 PORT MAP(D => c_in, EN => c_en, RST => rst, CLK => clk, Q => c_out);
     fz : FF1 PORT MAP(D => z_in, EN => z_en, RST => rst, CLK => clk, Q => z_out);
