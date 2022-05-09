@@ -23,7 +23,7 @@ begin
 			temp_b(15 downto 0) := inp_b;
 			temp_a(16) := '0';
 			temp_b(16) := '0';
-			temp_out := std_logic_vector(unsigned(temp_a) + unsigned(temp_b) + 1);
+			temp_out := std_logic_vector(unsigned(temp_a) + unsigned(temp_b));
 			out_c <= temp_out(16);
 		elsif (alu_op = "001") then
 			temp_out(15 downto 0) := inp_a xor inp_b;

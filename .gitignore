@@ -1,5 +1,6 @@
 # DUT.vhdl
 outputs*.txt
+.output
 # Testbench.vhdl
 __*.txt
 TRACEFILE-*.txt
