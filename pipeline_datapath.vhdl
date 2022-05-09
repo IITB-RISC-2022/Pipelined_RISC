@@ -183,7 +183,7 @@ architecture behav of pipe_datapath is
                     );
 
     rf_fwdr1: rf_fwdr port map (
-        a3_exmm => EXMM_Q(11 downto 9), a1_rrex => RREX_Q(82 downto 80), a2_rrex => RREX_Q(85 downto 83), rf_wren_mm =>  EXMM_Q(12), rf_d3mux_mm => EXMM_Q(8 downto 6),
+        a3_exmm => EXMM_Q(11 downto 9), a1_rrex => RREX_Q(98 downto 96), a2_rrex => RREX_Q(101 downto 99), rf_wren_mm =>  EXMM_Q(12), rf_d3mux_mm => EXMM_Q(8 downto 6),
         d1_fmux => d1_fmux_sig, d2_fmux => d2_fmux_sig 
     );
     mm_fwdr1: mm_fwdr port map (
@@ -218,7 +218,7 @@ architecture behav of pipe_datapath is
                 
                 LS_RR => RREX_D(95 downto 80), LSPC_RR => RREX_D(79 downto 64), SE_RR => RREX_D(63 downto 48), D1_RR => RREX_D(47 downto 32), D2_RR => RREX_D(31 downto 16),
                 A3_RR => RREX_D(15 downto 13), ALU_CS_RR => RREX_D(12 downto 10), RF_D3MUX_RR => RREX_D(9 downto 7),
-                A1_RR => RREX_D(82 downto 80), A2_RR => RREX_D(85 downto 83),
+                A1_RR => RREX_D(98 downto 96), A2_RR => RREX_D(101 downto 99),
                 ALU_FM_RR => RREX_D(6 downto 5), CWB_RR => RREX_D(4 downto 3),
                 RF_WREN_RR => RREX_D(2), ALUY_B_CS_RR => RREX_D(1), MEM_WREN_RR => RREX_D(0)
             );
