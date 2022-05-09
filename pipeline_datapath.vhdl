@@ -60,8 +60,8 @@ architecture behav of pipe_datapath is
         RF_WREN_RR, ALUY_B_CS_RR, MEM_WREN_RR : IN STD_LOGIC;
 
         -- forwarding inputs
-        aluy_out_fwd: in std_logic_vector(15 downto 0);
-        d1_fmux, d2_fmux: in std_logic;
+        aluy_out_fwd, mem_fwd: in std_logic_vector(15 downto 0);
+        d1_fmux, d2_fmux, d1_mfmux, d2_mfmux: in std_logic;
 
         ALU_C_EX, D1_EX, D2_EX, LSPC_EX, SE_EX, LS_EX: OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
         RF_WREN_EX,  MEM_WREN_EX: OUT STD_LOGIC;
@@ -120,7 +120,7 @@ architecture behav of pipe_datapath is
     component mm_fwdr is
         port (
         a3_rrex, a1_idrr, a2_idrr, rf_d3mux_rrex: in std_logic_vector(2 downto 0);
-        rf_wren_rrex: in std_logic;
+        rf_wren_rrex, clk: in std_logic;
         d1_mfmux, d2_mfmux, ifid_en, idrr_en, pc_en, rrex_clr : out std_logic
         );
     end component;
@@ -160,7 +160,7 @@ architecture behav of pipe_datapath is
             generic map(N => 102)
             port map(D => RREX_D,
                   EN => '1',
-                  CLR => rrex_clr_sig,
+                --   CLR => rrex_clr_sig,
                   RST => RST, 
                   CLK => CLK,
                   Q => RREX_Q
@@ -188,7 +188,7 @@ architecture behav of pipe_datapath is
     );
     mm_fwdr1: mm_fwdr port map (
         a3_rrex =>  RREX_Q(15 downto 13), a1_idrr => IDRR_Q(22 downto 20), a2_idrr => IDRR_Q(19 downto 17), rf_d3mux_rrex => RREX_Q(9 downto 7),
-        rf_wren_rrex => RREX_Q(2),
+        rf_wren_rrex => RREX_Q(2), clk => CLK,
         d1_mfmux => d1_mfmux_sig, d2_mfmux => d2_mfmux_sig, ifid_en => ifid_en_sig, idrr_en => idrr_en_sig, pc_en => pc_en_sig, rrex_clr => rrex_clr_sig
         );
             
@@ -232,6 +232,8 @@ architecture behav of pipe_datapath is
                 -- forwarding inputs
                 aluy_out_fwd => EXMM_Q(92 downto 77),
                 d1_fmux => d1_fmux_sig, d2_fmux => d2_fmux_sig,
+                mem_fwd => MMWB_Q(42 downto 27), 
+                d1_mfmux => d1_mfmux_sig, d2_mfmux => d2_mfmux_sig,
             
                 LS_EX => EXMM_D(108 downto 93), ALU_C_EX => EXMM_D(92 downto 77), D1_EX => EXMM_D(76 downto 61), D2_EX => EXMM_D(60 downto 45), LSPC_EX => EXMM_D(44 downto 29), SE_EX => EXMM_D(28 downto 13),
                 RF_WREN_EX => EXMM_D(12), 

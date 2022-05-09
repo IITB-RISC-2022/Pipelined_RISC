@@ -31,7 +31,7 @@ ghdl -a SignExtenders.vhdl
 ghdl -e SignExt9
 ghdl -e SignExt6
 
-ghdl -a rf_fwdr.vhdl
+ghdl -a fwdr.vhdl
 # ghdl -e rf_fwdr
 
 ghdl -a *_Stage.vhdl
