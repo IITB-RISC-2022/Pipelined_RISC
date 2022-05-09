@@ -1,0 +1,27 @@
+ADD:
+    add r2, r0, r1
+    add r2, r1, r1
+
+    Debug:
+    r0 = 0x0010
+    r1 = 0x0002
+
+    Result: r2 = 0x0012 first and then r2 = 0x0004
+
+LW: 
+    LW r2, r1, #000000B
+
+    Debug:
+    r1 = 0x0002
+    r2 = 0x0111
+    mem[0x0002] = 0x1000
+
+    Result: r2 = mem[0x0002] = 0x1000
+
+LHI:
+    LHI r0, #111100000B
+
+    Debug:
+    r0 = 0x0111
+
+    Result: r0 = 0xF000
